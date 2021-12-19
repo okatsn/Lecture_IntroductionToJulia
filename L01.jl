@@ -8,6 +8,8 @@ using InteractiveUtils
 begin
 	using PlutoUI
 	using BenchmarkTools
+	using LaTeXStrings
+
 end
 
 # ╔═╡ b51695fd-2fd1-490b-9095-c9d19878dd56
@@ -91,6 +93,8 @@ end
 # ╔═╡ ebb7d6f1-af95-43e7-9581-5e6b9777fe39
 md"""
 ## 多重分派 (Multiple dispatch)
+[(for more info, see this)](https://yuehhua.github.io/2020/04/01/julia-multiple-dispatch/)
+
 多重分派是julia最明顯的特色。 多重分派指的是
 另一方面， 在單一分派的物件導向程式設計中，我們會將函式(function)歸類到某個類別(class)底下的方法(method)。 以下是 python的範例程式碼：
 ```python
@@ -115,11 +119,19 @@ bar.abc()
 
 # ╔═╡ 621fec83-b164-4988-9841-3f4622a6139f
 md"""
-## 以下是julia 的多重分派的範例：
+## 從實例認識多重分派：
+"""
+
+# ╔═╡ 61acc7f6-1320-415a-9614-db079f35228b
+L"""
+
+\underbrace{切割}_{方法}\underbrace{木頭}_{物件}
 """
 
 # ╔═╡ fae01d58-aabb-4822-ad2f-c308e1386969
-md"範例：建立一個🪵(木頭)的類別"
+md"""
+建立一個🪵(木頭)的類別
+"""
 
 # ╔═╡ 9291dbf9-d772-4ead-82ba-156fdecb172d
 mutable struct 🪵 # 類別: 木頭
@@ -143,6 +155,9 @@ function 🪓(w::🪵)
 	w.L=w.L/2
 	(w, w)
 end
+
+# ╔═╡ 80d895ca-4d8c-4ca3-8c76-02c09f6d7836
+md"(`::` is type assertion. For example, `A::Float64` returns nothing if `A` is a floating number of 64bit; otherwise, an error will be raised.)"
 
 # ╔═╡ 1b3462ed-fa28-48e1-a3dd-14263f399b6b
 md"如果我想把木頭切成n等分? "
@@ -179,6 +194,90 @@ let
 v = [1,2,3,4,5,6,7,8,9,10];
 🪓(v)
 end
+
+# ╔═╡ 18da0620-5ef9-4b56-9598-345230edb1d7
+md"""
+## 從 julia 內建的乘法看多重分派
+"""
+
+# ╔═╡ d017a18a-727f-440d-b42e-97e40e1dc6a1
+md"實數乘法："
+
+# ╔═╡ 2dc59144-3bae-4f9a-a3e7-cf6a82a27802
+md"虛數乘法："
+
+# ╔═╡ 88910e9c-a8c3-47d6-948e-c646e72fc180
+md"矩陣乘法："
+
+# ╔═╡ 161117db-6ccd-4056-8353-05aa64f6ce71
+L"""
+\begin{pmatrix}
+1 & 2 \\
+3 & 4
+\end{pmatrix}
+
+\begin{pmatrix}
+3 & 1 \\
+0 & 2
+\end{pmatrix}
+
+= 
+
+\begin{pmatrix}
+3 & 5 \\
+9 & 11
+\end{pmatrix}
+"""
+
+# ╔═╡ 95611b36-5370-4b13-a1f0-4f8fdbfb0f3d
+md"字串相乘?"
+
+# ╔═╡ c287f471-ecea-4671-90d3-5dd6439f4846
+md"""
+### 擴充乘法
+一般來說， `3*"Hello"` 是會報錯的，因為不存在方法支援整數(Int)與字串(String)的相乘:
+```julia:repl
+ERROR: MethodError: no method matching *(::Int64, ::String)
+```
+
+julia 的操作運算子也都是函式， 例如， `3*2` 其實也可以寫成 `*(3,2)`。
+julia 內建的函式都放在 Base 下面。
+利用多重分派， 我們可以新增乘法符號的新方法， 使得 `3*"Hello"` 得到 `"HHHeeellllllooo"`：
+"""
+
+# ╔═╡ 77b1d882-c45b-4889-8785-09d8b412b102
+function Base.:*(n::Int, str::String) # :* 代表乘法(*)的符號，其類別是 Symbol
+	str1 = [];
+	for s in str
+		for i = 1:n
+			push!(str1, s)
+		end
+	end
+	return string(str1...)
+end
+
+# ╔═╡ 88d9f535-bf29-490a-be26-0c3bd63e7231
+110*55
+
+# ╔═╡ 47b9aba5-054b-46dc-bdf4-fac7c147f60b
+(1+1im)*(1+1im)
+
+# ╔═╡ 5ee4dfff-ca59-43aa-96cd-2379dbff5e5f
+[1 2; 3 4]*[3 1; 0 2]
+
+# ╔═╡ 01d91380-e44e-4d77-93bb-329ce2de20b3
+"hello"*"world"
+
+# ╔═╡ 42b558e5-3a94-47da-80e3-f8fa9a0f5ae4
+3*"Hello"
+
+# ╔═╡ 60ae193a-79bf-41ac-b360-fc2e36a270de
+md"""
+### 作業
+寫一個`drop`函式，包含兩個方法：
+- 如果輸入是向量， 把向量的最後一個元素剔除後回傳
+- 如果輸入是矩陣， 把矩陣的最後一橫列剔除後回傳
+"""
 
 # ╔═╡ c8f57255-0fca-4170-b506-622eedc1d103
 md"""
@@ -273,10 +372,12 @@ md"""
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
+LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 
 [compat]
 BenchmarkTools = "~1.2.2"
+LaTeXStrings = "~1.3.0"
 PlutoUI = "~0.7.24"
 """
 
@@ -351,6 +452,11 @@ deps = ["Dates", "Mmap", "Parsers", "Unicode"]
 git-tree-sha1 = "8076680b162ada2a031f707ac7b4953e30667a37"
 uuid = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 version = "0.21.2"
+
+[[LaTeXStrings]]
+git-tree-sha1 = "f2355693d6778a178ade15952b7ac47a4ff97996"
+uuid = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
+version = "1.3.0"
 
 [[LibCURL]]
 deps = ["LibCURL_jll", "MozillaCACerts_jll"]
@@ -493,12 +599,14 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╠═6586ce82-1cae-4de5-96c7-79f769dd5429
 # ╟─ebb7d6f1-af95-43e7-9581-5e6b9777fe39
 # ╟─621fec83-b164-4988-9841-3f4622a6139f
+# ╟─61acc7f6-1320-415a-9614-db079f35228b
 # ╟─fae01d58-aabb-4822-ad2f-c308e1386969
 # ╠═9291dbf9-d772-4ead-82ba-156fdecb172d
 # ╟─49a02781-7b9a-4f57-b0ed-992d6d8ae2f1
 # ╠═6cabd377-ad4f-4ead-b36c-36ad9a5a7b73
 # ╟─d1f9dedf-aba4-48d8-935f-eda0092ea8cf
 # ╠═f3697ee8-7de1-4698-804d-101e15da89fb
+# ╟─80d895ca-4d8c-4ca3-8c76-02c09f6d7836
 # ╠═0e835f9d-b45b-4063-add9-e853c85d45f5
 # ╟─1b3462ed-fa28-48e1-a3dd-14263f399b6b
 # ╠═aa730d31-0e37-4ac8-9b23-a443314af322
@@ -506,6 +614,20 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╟─11001bc8-865a-42e9-91b3-57a77211d108
 # ╠═8d10e00d-a439-479a-8c56-d7923d2a39d5
 # ╠═d45e0f9d-8fce-4f48-96c3-078d8098666e
+# ╟─18da0620-5ef9-4b56-9598-345230edb1d7
+# ╟─d017a18a-727f-440d-b42e-97e40e1dc6a1
+# ╠═88d9f535-bf29-490a-be26-0c3bd63e7231
+# ╟─2dc59144-3bae-4f9a-a3e7-cf6a82a27802
+# ╠═47b9aba5-054b-46dc-bdf4-fac7c147f60b
+# ╟─88910e9c-a8c3-47d6-948e-c646e72fc180
+# ╟─161117db-6ccd-4056-8353-05aa64f6ce71
+# ╠═5ee4dfff-ca59-43aa-96cd-2379dbff5e5f
+# ╟─95611b36-5370-4b13-a1f0-4f8fdbfb0f3d
+# ╠═01d91380-e44e-4d77-93bb-329ce2de20b3
+# ╟─c287f471-ecea-4671-90d3-5dd6439f4846
+# ╠═77b1d882-c45b-4889-8785-09d8b412b102
+# ╠═42b558e5-3a94-47da-80e3-f8fa9a0f5ae4
+# ╟─60ae193a-79bf-41ac-b360-fc2e36a270de
 # ╠═c8f57255-0fca-4170-b506-622eedc1d103
 # ╠═605ccfe0-15b2-41be-a85f-6c0885a0cca2
 # ╠═6dedb160-9e40-40fd-ad9b-e2e7b0c23a2d
