@@ -10,13 +10,13 @@ begin
 	using BenchmarkTools
 end
 
-# ╔═╡ d34e2dae-735a-4fd9-9958-af58e04c4ca9
-
-TableOfContents(title="📚 Table of Contents", indent=true, depth=4, aside=false)
-
 # ╔═╡ b51695fd-2fd1-490b-9095-c9d19878dd56
 html"<button onclick='present()'>present</button>"
 # for more info, see https://andreaskroepelin.de/blog/plutoslides/
+
+# ╔═╡ d34e2dae-735a-4fd9-9958-af58e04c4ca9
+
+TableOfContents(title="📚 Table of Contents", indent=true, depth=4, aside=false)
 
 # ╔═╡ 03f5e9bf-00e7-4a8d-bd73-d1f2316159f2
 md"""
@@ -91,8 +91,94 @@ end
 # ╔═╡ ebb7d6f1-af95-43e7-9581-5e6b9777fe39
 md"""
 ## 多重分派 (Multiple dispatch)
+多重分派是julia最明顯的特色。 多重分派指的是
+另一方面， 在單一分派的物件導向程式設計中，我們會將函式(function)歸類到某個類別(class)底下的方法(method)。 以下是 python的範例程式碼：
+```python
+# 定義函式
+class Foo:
+    def abc(self, x):
+        return str(x)
 
+class Bar:
+    def abc(self, x):
+        return int(x)
+
+# 建立物件
+foo = Foo()
+bar = Bar()
+
+# 呼叫函式：
+foo.abc()
+bar.abc()
+```
 """
+
+# ╔═╡ 621fec83-b164-4988-9841-3f4622a6139f
+md"""
+## 以下是julia 的多重分派的範例：
+"""
+
+# ╔═╡ fae01d58-aabb-4822-ad2f-c308e1386969
+md"範例：建立一個🪵(木頭)的類別"
+
+# ╔═╡ 9291dbf9-d772-4ead-82ba-156fdecb172d
+mutable struct 🪵 # 類別: 木頭
+	A::Float64 # 截面積
+	L::Float64 # 長度
+end
+
+# ╔═╡ 49a02781-7b9a-4f57-b0ed-992d6d8ae2f1
+md"建立一個類別屬於🪵的物件實體："
+
+# ╔═╡ 6cabd377-ad4f-4ead-b36c-36ad9a5a7b73
+wood1 = 🪵(5, 70)
+
+# ╔═╡ d1f9dedf-aba4-48d8-935f-eda0092ea8cf
+md"""
+創建一個方法🪓把木頭🪵砍半：
+"""
+
+# ╔═╡ f3697ee8-7de1-4698-804d-101e15da89fb
+function 🪓(w::🪵)
+	w.L=w.L/2
+	(w, w)
+end
+
+# ╔═╡ 1b3462ed-fa28-48e1-a3dd-14263f399b6b
+md"如果我想把木頭切成n等分? "
+
+# ╔═╡ aa730d31-0e37-4ac8-9b23-a443314af322
+function 🪓(w::🪵, n)
+	w.L=w.L/n;
+	fill(w, n)
+end
+
+# ╔═╡ 11001bc8-865a-42e9-91b3-57a77211d108
+md"""
+🪓還可以拿來砍別的東西吧? 如果我想要把一個向量砍半的話...
+"""
+
+# ╔═╡ 8d10e00d-a439-479a-8c56-d7923d2a39d5
+function 🪓(vec::Vector)
+	lenv = length(vec); 
+	mid = Int(lenv/2); # "中間"定義為向量長度的一半向下取整數
+	return (vec[1:mid], vec[mid+1:end])
+end
+
+# ╔═╡ 0e835f9d-b45b-4063-add9-e853c85d45f5
+🪓(wood1)
+
+# ╔═╡ 00aaa76e-92e8-420a-b06f-391806339f8b
+let 
+	wood2 = 🪵(5, 70)
+	🪓(wood2, 5)
+end
+
+# ╔═╡ d45e0f9d-8fce-4f48-96c3-078d8098666e
+let
+v = [1,2,3,4,5,6,7,8,9,10];
+🪓(v)
+end
 
 # ╔═╡ c8f57255-0fca-4170-b506-622eedc1d103
 md"""
@@ -405,7 +491,21 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╠═e882362d-8db1-4570-a098-fd50f436f5c5
 # ╟─0fd3158a-efc4-43c6-8061-9d925a13bd50
 # ╠═6586ce82-1cae-4de5-96c7-79f769dd5429
-# ╠═ebb7d6f1-af95-43e7-9581-5e6b9777fe39
+# ╟─ebb7d6f1-af95-43e7-9581-5e6b9777fe39
+# ╟─621fec83-b164-4988-9841-3f4622a6139f
+# ╟─fae01d58-aabb-4822-ad2f-c308e1386969
+# ╠═9291dbf9-d772-4ead-82ba-156fdecb172d
+# ╟─49a02781-7b9a-4f57-b0ed-992d6d8ae2f1
+# ╠═6cabd377-ad4f-4ead-b36c-36ad9a5a7b73
+# ╟─d1f9dedf-aba4-48d8-935f-eda0092ea8cf
+# ╠═f3697ee8-7de1-4698-804d-101e15da89fb
+# ╠═0e835f9d-b45b-4063-add9-e853c85d45f5
+# ╟─1b3462ed-fa28-48e1-a3dd-14263f399b6b
+# ╠═aa730d31-0e37-4ac8-9b23-a443314af322
+# ╠═00aaa76e-92e8-420a-b06f-391806339f8b
+# ╟─11001bc8-865a-42e9-91b3-57a77211d108
+# ╠═8d10e00d-a439-479a-8c56-d7923d2a39d5
+# ╠═d45e0f9d-8fce-4f48-96c3-078d8098666e
 # ╠═c8f57255-0fca-4170-b506-622eedc1d103
 # ╠═605ccfe0-15b2-41be-a85f-6c0885a0cca2
 # ╠═6dedb160-9e40-40fd-ad9b-e2e7b0c23a2d
